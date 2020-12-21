@@ -4,7 +4,7 @@
 
 This is a short introuction of Julia language in Japanese.
 
-[Julia](https://julialang.org/)
+What is Julia? -> [Julia](https://julialang.org/)
 
 [こちらからどうぞ](short_intro_julia.ipynb)。
 
