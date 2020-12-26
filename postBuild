@@ -1,0 +1,2 @@
+conda install matplotlib
+julia -e 'ENV["PYTHON"]=Sys.which("python3"); using Pkg; Pkg.build("PyCall"); using PyPlot'
