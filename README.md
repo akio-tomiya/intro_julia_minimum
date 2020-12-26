@@ -12,4 +12,6 @@ What is Julia? -> [Julia](https://julialang.org/)
 
 binder を使うとどこででも試すことができます。
 
+下記のアイコンから実行できます。
+
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/akio-tomiya/intro_julia_minimum/HEAD?filepath=short_intro_julia.ipynb)
