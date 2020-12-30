@@ -8,6 +8,8 @@ What is Julia? -> [Julia](https://julialang.org/)
 
 [こちらからどうぞ](short_intro_julia.ipynb)。
 
+[English version is here](short_intro_julia_en.ipynb)。
+
 ノートブックは、実際にダウンロードして実行することができます。
 
 binder を使うとどこででも試すことができます。
