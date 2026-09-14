@@ -87,6 +87,43 @@ For the motivation behind the language, see [Why We Created Julia](https://julia
 
 add(
     r"""
+## Pythonとの違い、C++との違い
+
+### Pythonとの違い
+
+Julia は Python と同じように、REPL や Jupyter Notebook で対話的に試せます。変数の型を毎回宣言する必要がなく、短いコードから書き始められる点も似ています。
+
+数値計算を Python で高速に行う場合、Python 自身の `for` ループを避け、教科書に書かれたアルゴリズムを NumPy のベクトル演算へ書き直すことがよくあります。うまく書き換えるには、NumPy の機能とデータ配置を理解する経験が必要です。場合によっては Numba、Cython、C/C++ なども使います。
+
+Julia では、通常の `for` ループも、実行時に具体的な型に合わせてコンパイルされます。そのため、教科書のアルゴリズムをループのまま素直に実装しても、十分に高速なコードになることが多いです。高速化のためだけに、すべてをベクトル演算へ書き換える必要はありません。ただし、型が安定していること、不要なメモリ確保を減らすこと、重い処理を関数内に書くことは重要です。
+
+### C++との違い
+
+C++ は、型を明示して事前にコンパイルし、メモリや実行方法を細かく制御できる言語です。起動時間、低水準の制御、既存ライブラリの規模などで強みがあります。一方、テンプレート、ビルド設定、メモリ管理など、数値アルゴリズム以外に必要な記述も多くなります。
+
+Julia は型宣言を省略でき、REPL で試しながら書けますが、実行する関数は具体的な型ごとにコンパイルされます。多重ディスパッチを使って、数値の型やデータ構造に応じた処理を自然に分けられます。その代わり、関数の初回実行にはコンパイル時間がかかり、ガベージコレクションや配布方法も C++ とは異なります。
+""",
+    r"""
+## How Julia differs from Python and C++
+
+### Compared with Python
+
+Like Python, Julia supports an interactive REPL and Jupyter Notebook. You can start with short code and usually do not need to declare the type of every variable.
+
+For fast numerical work in Python, programmers often avoid Python-level `for` loops and reformulate a textbook algorithm as vectorized NumPy operations. Doing this well can require substantial knowledge of NumPy operations and data layout. Numba, Cython, or C/C++ extensions are also common when vectorization is not a good fit.
+
+Julia compiles ordinary `for` loops for the concrete types used at runtime. A direct loop-based translation of a textbook algorithm can therefore remain efficient, and code does not have to be rewritten as vector operations merely to avoid slow language-level loops. Performance still depends on type stability, avoiding unnecessary allocations, and putting substantial computations inside functions.
+
+### Compared with C++
+
+C++ uses explicit static types and ahead-of-time compilation, and gives detailed control over memory and execution. It has advantages in startup time, low-level control, and the size of its established ecosystem. Templates, build configuration, and memory management can also add code around the numerical algorithm itself.
+
+Julia lets you omit most type declarations and develop interactively, while compiling functions for the concrete argument types that reach them. Multiple dispatch provides a natural way to select behavior for different numerical types and data structures. The tradeoffs include compilation latency on a function's first call, garbage collection, and different deployment options from C++.
+""",
+)
+
+add(
+    r"""
 ## インストールと起動
 
 現在は、公式のインストーラー兼バージョン管理ツール [`juliaup`](https://julialang.org/install/) の利用が推奨されています。インストール後、ターミナルで `julia` を実行すると REPL が開きます。
@@ -338,14 +375,18 @@ sum_of_squares(1:100)
 
 add(
     r"""
-## 作図
+## 作図（PythonPlot を使う例）
 
-ここでは、Matplotlib を Julia から使う [PythonPlot.jl](https://github.com/JuliaPy/PythonPlot.jl) を使います。以前この教材で使っていた PyPlot.jl より新しい PythonCall.jl を基盤とし、必要な Python 環境は CondaPkg.jl が管理します。
+ここでは、Matplotlib に慣れた人にも分かりやすい例として、Matplotlib を Julia から使う [PythonPlot.jl](https://github.com/JuliaPy/PythonPlot.jl) を選びます。以前この教材で使っていた PyPlot.jl と、現在使う PythonPlot.jl は、どちらも Julia と Python の橋渡しをするパッケージです。PythonPlot.jl は新しい PythonCall.jl を基盤とし、必要な Python 環境は CondaPkg.jl が管理します。
+
+**作図に Python が必須という意味ではありません。** [Plots.jl](https://docs.juliaplots.org/stable/) や [Makie.jl](https://docs.makie.org/stable/) などを使えば、Python や Matplotlib を用いず、Julia の環境だけで計算から作図まで完結できます。このノートの数値計算部分も Julia だけで実装されています。
 """,
     r"""
-## Plotting
+## Plotting with PythonPlot
 
-We use [PythonPlot.jl](https://github.com/JuliaPy/PythonPlot.jl), which calls Matplotlib from Julia. It replaces the older PyPlot.jl used by this tutorial and is built on PythonCall.jl. CondaPkg.jl manages the required Python environment.
+We use [PythonPlot.jl](https://github.com/JuliaPy/PythonPlot.jl), which calls Matplotlib from Julia, because its interface is familiar to Matplotlib users. Both the older PyPlot.jl previously used in this tutorial and the current PythonPlot.jl are bridges between Julia and Python. PythonPlot.jl is built on the newer PythonCall.jl, and CondaPkg.jl manages the required Python environment.
+
+**Python is not required for plotting in Julia.** Packages such as [Plots.jl](https://docs.juliaplots.org/stable/) and [Makie.jl](https://docs.makie.org/stable/) let you complete the workflow from computation to plotting in the Julia environment without Python or Matplotlib. The numerical computations in this notebook are also implemented entirely in Julia.
 """,
     r"""
 using PythonPlot
@@ -405,14 +446,18 @@ fig
 
 add(
     r"""
-## Python のライブラリを使う
+## Python のライブラリを使う（任意）
 
-[PythonCall.jl](https://juliapy.github.io/PythonCall.jl/stable/pythoncall/) の `pyimport` で Python パッケージを読み込めます。Python の値を Julia の型へ明示的に変換するときは `pyconvert` を使います。
+このセクションは、既存の Python 資産と連携する方法を示すための任意の例です。Julia の配列、乱数、線形代数、数値計算用パッケージを使えば、NumPy を呼び出さずに Julia だけで同じ種類の計算を行えます。
+
+Python との連携が必要な場合は、[PythonCall.jl](https://juliapy.github.io/PythonCall.jl/stable/pythoncall/) の `pyimport` で Python パッケージを読み込めます。Python の値を Julia の型へ明示的に変換するときは `pyconvert` を使います。
 """,
     r"""
-## Calling Python libraries
+## Calling Python libraries (optional)
 
-Use `pyimport` from [PythonCall.jl](https://juliapy.github.io/PythonCall.jl/stable/pythoncall/) to load a Python package. Use `pyconvert` when you want to explicitly convert a Python value to a Julia type.
+This optional section demonstrates interoperability with existing Python software. Julia provides its own arrays, random-number tools, linear algebra, and numerical packages, so the same kinds of computation can be completed entirely in Julia without calling NumPy.
+
+When Python interoperability is useful, load a Python package with `pyimport` from [PythonCall.jl](https://juliapy.github.io/PythonCall.jl/stable/pythoncall/). Use `pyconvert` when you want to explicitly convert a Python value to a Julia type.
 """,
     r"""
 using PythonCall

@@ -1,6 +1,6 @@
 # 理系向けの最小 Julia 入門
 
-Julia の基本文法から、配列・行列、作図、Python 連携、簡単な数値計算までを短く学ぶ Jupyter Notebook です。日本語版と英語版があります。
+Julia の基本文法から、配列・行列、作図、任意の Python 連携、簡単な数値計算までを短く学ぶ Jupyter Notebook です。日本語版と英語版があります。数値計算も作図も Julia の環境だけで完結できますが、Matplotlib に慣れた人向けの例として PythonPlot も紹介します。
 
 - [日本語版ノートブック](short_intro_julia.ipynb)
 - [English notebook](short_intro_julia_en.ipynb)
