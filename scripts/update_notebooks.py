@@ -95,13 +95,13 @@ Julia は Python と同じように、REPL や Jupyter Notebook で対話的に�
 
 数値計算を Python で高速に行う場合、Python 自身の `for` ループを避け、教科書に書かれたアルゴリズムを NumPy のベクトル演算へ書き直すことがよくあります。うまく書き換えるには、NumPy の機能とデータ配置を理解する経験が必要です。場合によっては Numba、Cython、C/C++ なども使います。
 
-Julia では、通常の `for` ループも、実行時に具体的な型に合わせてコンパイルされます。そのため、教科書のアルゴリズムをループのまま素直に実装しても、十分に高速なコードになることが多いです。高速化のためだけに、すべてをベクトル演算へ書き換える必要はありません。ただし、型が安定していること、不要なメモリ確保を減らすこと、重い処理を関数内に書くことは重要です。
+Julia では、通常の `for` ループも、実行時に具体的な型に合わせてコンパイルされます。そのため、教科書のアルゴリズムをループのまま素直に実装しても、十分に高速なコードになることが多いです。高速化のためだけに、すべてをベクトル演算へ書き換える必要はありません。
 
 ### C++との違い
 
 C++ は、型を明示して事前にコンパイルし、メモリや実行方法を細かく制御できる言語です。起動時間、低水準の制御、既存ライブラリの規模などで強みがあります。一方、テンプレート、ビルド設定、メモリ管理など、数値アルゴリズム以外に必要な記述も多くなります。
 
-Julia は型宣言を省略でき、REPL で試しながら書けますが、実行する関数は具体的な型ごとにコンパイルされます。多重ディスパッチを使って、数値の型やデータ構造に応じた処理を自然に分けられます。その代わり、関数の初回実行にはコンパイル時間がかかり、ガベージコレクションや配布方法も C++ とは異なります。
+Julia は型宣言を省略でき、REPL で試しながら書けますが、実行する関数は具体的な型ごとにコンパイルされます。多重ディスパッチを使って、数値の型やデータ構造に応じた処理を自然に分けられます。
 """,
     r"""
 ## How Julia differs from Python and C++
@@ -112,13 +112,13 @@ Like Python, Julia supports an interactive REPL and Jupyter Notebook. You can st
 
 For fast numerical work in Python, programmers often avoid Python-level `for` loops and reformulate a textbook algorithm as vectorized NumPy operations. Doing this well can require substantial knowledge of NumPy operations and data layout. Numba, Cython, or C/C++ extensions are also common when vectorization is not a good fit.
 
-Julia compiles ordinary `for` loops for the concrete types used at runtime. A direct loop-based translation of a textbook algorithm can therefore remain efficient, and code does not have to be rewritten as vector operations merely to avoid slow language-level loops. Performance still depends on type stability, avoiding unnecessary allocations, and putting substantial computations inside functions.
+Julia compiles ordinary `for` loops for the concrete types used at runtime. A direct loop-based translation of a textbook algorithm can therefore remain efficient, and code does not have to be rewritten as vector operations merely to avoid slow language-level loops.
 
 ### Compared with C++
 
 C++ uses explicit static types and ahead-of-time compilation, and gives detailed control over memory and execution. It has advantages in startup time, low-level control, and the size of its established ecosystem. Templates, build configuration, and memory management can also add code around the numerical algorithm itself.
 
-Julia lets you omit most type declarations and develop interactively, while compiling functions for the concrete argument types that reach them. Multiple dispatch provides a natural way to select behavior for different numerical types and data structures. The tradeoffs include compilation latency on a function's first call, garbage collection, and different deployment options from C++.
+Julia lets you omit most type declarations and develop interactively, while compiling functions for the concrete argument types that reach them. Multiple dispatch provides a natural way to select behavior for different numerical types and data structures.
 """,
 )
 
@@ -342,34 +342,6 @@ function square(x)
 end
 
 println("3^2 = ", square(3))
-""",
-)
-
-add(
-    r"""
-### 速いコードを書くための基本
-
-性能が必要な計算は関数の中に書き、型が途中で不必要に変わらないようにします。引数に具体的な型を付けること自体は、通常は高速化に必要ありません。グローバルな定数には `const` を付けます。計測では初回のコンパイル時間を分けて考えてください。
-
-詳しくは [Performance Tips](https://docs.julialang.org/en/v1/manual/performance-tips/) を参照してください。
-""",
-    r"""
-### Basic performance advice
-
-Put performance-sensitive computation inside functions and avoid unnecessary changes of value type. Adding concrete type annotations to function arguments is usually not required for speed. Mark global constants with `const`, and account for first-call compilation when timing code.
-
-See the official [Performance Tips](https://docs.julialang.org/en/v1/manual/performance-tips/) for details.
-""",
-    r"""
-function sum_of_squares(xs)
-    total = zero(eltype(xs))
-    for x in xs
-        total += x^2
-    end
-    total
-end
-
-sum_of_squares(1:100)
 """,
 )
 
@@ -643,6 +615,43 @@ add(
 - [IJulia documentation](https://ijulia.org/stable/)
 
 To update packages, activate this project and run `using Pkg; Pkg.update()` in Julia. Then execute each notebook from top to bottom and inspect the results.
+""",
+)
+
+add(
+    r"""
+## 高速なコードを書くためのチップス
+
+性能が必要な計算は関数の中に書き、変数の型が途中で不必要に変わらないようにします。引数に具体的な型を付けること自体は、通常は高速化に必要ありません。グローバルな定数には `const` を付けます。
+
+不要な配列などを繰り返し作らないことも重要です。メモリ確保が多いコードではガベージコレクションにも時間がかかります。既存の配列を書き換えて再利用する関数には、慣例として `!` で終わる名前が付いています。
+
+Julia では、関数の初回実行にコンパイル時間がかかります。実行時間を測るときは、最初に一度関数を実行してから計測し、コンパイル時間と本来の計算時間を分けて考えます。ガベージコレクションやプログラムの配布方法も C++ とは異なります。
+
+詳しくは公式マニュアルの [Performance Tips](https://docs.julialang.org/en/v1/manual/performance-tips/) を参照してください。
+""",
+    r"""
+## Tips for writing fast Julia code
+
+Put performance-sensitive computation inside functions and avoid unnecessary changes of variable type. Adding concrete type annotations to function arguments is usually not required for speed. Mark global constants with `const`.
+
+Avoid repeatedly creating arrays and other temporary objects when they are not needed. Excessive allocation also increases the time spent in garbage collection. By convention, functions that modify and reuse an existing array often have names ending in `!`.
+
+Julia compiles a function the first time it is called for a new set of argument types. When measuring execution time, call the function once before timing it so that compilation time can be considered separately from the computation itself. Garbage collection and program deployment also differ from C++.
+
+See the official [Performance Tips](https://docs.julialang.org/en/v1/manual/performance-tips/) for more detail.
+""",
+    r"""
+function sum_of_squares(xs)
+    total = zero(eltype(xs))
+    for x in xs
+        total += x^2
+    end
+    total
+end
+
+sum_of_squares(1:100)  # first call includes compilation
+sum_of_squares(1:100)  # subsequent calls reuse compiled code
 """,
 )
 
