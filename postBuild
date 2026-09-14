@@ -1,2 +1,5 @@
-conda install -y matplotlib
-julia -e 'ENV["PYTHON"]=Sys.which("python3"); using Pkg; Pkg.build("PyCall"); using PyPlot'
+#!/usr/bin/env bash
+set -eux
+
+# Prepare PythonPlot's isolated Python environment while Binder builds the image.
+julia --project=. -e 'using PythonCall, PythonPlot; pyimport("numpy")'
